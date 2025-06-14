@@ -1,10 +1,10 @@
 from rest_framework import status, viewsets
-from rest_framework.decorators import api_view
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import Todo
-from .serializer import TodoSerializer
+from .serializer import TimingTodo, TimingTodoSerializer, TodoSerializer
 
 
 @api_view(["GET", "POST", "PATCH"])
@@ -159,3 +159,38 @@ class TodoView(APIView):
 class TodoViewSet(viewsets.ModelViewSet):
     queryset = Todo.objects.all()
     serializer_class = TodoSerializer
+
+    @action(detail=False, methods=["GET"])
+    def get_timing_todo(self, request):
+        objs = TimingTodo.objects.all()
+        serializer = TimingTodoSerializer(objs, many=True)
+        return Response(
+            {"status": True, "message": "Timing Todo fetched", "data": serializer.data}
+        )
+
+    @action(detail=True, methods=["post"])
+    def add_date_to_todo(self, request, slug):
+        try:
+            data = request.data
+            serializer = TimingTodoSerializer(data=data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    {
+                        "status": True,
+                        "message": "Successfully data is received",
+                        "data": serializer.data,
+                    }
+                )
+
+            return Response(
+                {"status": False, "message": "Invalid data", "data": serializer.errors}
+            )
+        except Exception as e:
+            print(e)
+        return Response(
+            {
+                "status": False,
+                "message": "Something went wrong",
+            }
+        )

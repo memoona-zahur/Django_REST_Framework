@@ -3,7 +3,7 @@ import re
 from django.template.defaultfilters import slugify
 from rest_framework import serializers
 
-from .models import Todo
+from .models import TimingTodo, Todo
 
 
 class TodoSerializer(serializers.ModelSerializer):
@@ -51,3 +51,13 @@ class TodoSerializer(serializers.ModelSerializer):
     #                 "todo_title cannot contains special characters"
     #             )
     #     return validated_data
+
+
+class TimingTodoSerializer(serializers.ModelSerializer):
+
+    todo = TodoSerializer()
+
+    class Meta:
+        model = TimingTodo
+        exclude = ["created_at", "updated_at"]
+        # depth = 1
